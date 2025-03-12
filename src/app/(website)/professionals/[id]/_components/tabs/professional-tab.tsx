@@ -41,7 +41,7 @@ const ProfessionalTab = ({ professionalId }: Props) => {
       case "live-stream":
         return <LiveStreamTab professionalId={professionalId} />;
       case "faqs":
-        return <FAQsTab />;
+        return <FAQsTab userId={professionalId} />;
       case "reviews":
         return <ReviewsTab />;
       default:
