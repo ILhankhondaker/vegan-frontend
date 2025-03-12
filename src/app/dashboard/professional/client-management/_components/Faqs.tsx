@@ -1,12 +1,12 @@
 "use client"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
-import { Pencil, Trash2,  Loader2 } from "lucide-react"
+import { Pencil, Trash2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useMutation } from "@tanstack/react-query"
+import { Separator } from "@/components/ui/separator"
 
 interface Question {
   id: number
@@ -23,59 +23,55 @@ interface Props {
   userId: string;
 }
 
-export default function QAForm({userId}: Props) {
+export default function QAForm({ userId }: Props) {
   const [pendingId, setPendingId] = useState<number | null>(null)
-
 
   const [questions, setQuestions] = useState<Question[]>([
     {
       id: 1,
       question: "",
-      answer:
-        "",
+      answer: "",
     }
   ])
 
-
-
   const { mutate: createMuate, isPending } = useMutation({
-  mutationKey: ["forget-password"],
-  mutationFn: (data: MutateBody) =>
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/faqs`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }).then((res) => res.json()),
-  onSuccess: (data) => {
-    setPendingId (null)
+    mutationKey: ["forget-password"],
+    mutationFn: (data: MutateBody) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/faqs`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      setPendingId(null)
 
-    if (!data.success) {
-      toast.error(data.message, {
+      if (!data.success) {
+        toast.error(data.message, {
+          position: "top-right",
+          richColors: true,
+        })
+        return
+      }
+
+      // Clear input fields after successful API call
+      setQuestions(questions.map((q) => ({ ...q, question: "", answer: "" })))
+
+      // handle success
+      toast.success(data.message, {
+        position: "bottom-right",
+        richColors: true,
+      })
+    },
+    onError: (err) => {
+      setPendingId(null)
+      toast.error(err.message ?? "Something went wrong", {
         position: "top-right",
         richColors: true,
-      });
-
-      return;
-    }
-
-    // handle success
-    toast.success(data.message, {
-      position: "bottom-right",
-      richColors: true,
-    });
-
-   
-  },
-  onError: (err) => {
-    setPendingId (null)
-    toast.error(err.message ?? "Something went wrong" , {
-      position: "top-right",
-      richColors: true
-    });
-  },
-});
+      })
+    },
+  })
 
   const handleQuestionChange = (id: number, value: string) => {
     setQuestions(questions.map((q) => (q.id === id ? { ...q, question: value } : q)))
@@ -89,44 +85,32 @@ export default function QAForm({userId}: Props) {
     const question = questions.find((q) => q.id === id)
     console.log("Form data:", question)
 
-    if(!question?.question || !question?.answer) {
-      toast.error("Question and Answer is required", {
+    if (!question?.question || !question?.answer) {
+      toast.error("Question and Answer are required", {
         position: "top-right",
         richColors: true,
-      });
-
-      return;
+      })
+      return
     }
 
     const data = {
-      question: question?.question, answer: question?.answer, userID: userId} 
+      question: question?.question,
+      answer: question?.answer,
+      userID: userId,
+    }
 
-      // call api
-      setPendingId(question.id)
-      createMuate(data)
-
+    // call API
+    setPendingId(question.id)
+    createMuate(data)
   }
 
   const handleDelete = (id: number) => {
     setQuestions(questions.filter((q) => q.id !== id))
   }
 
-  // const addNewQuestion = () => {
-  //   if (questions.length < 10) {
-  //     setQuestions([
-  //       ...questions,
-  //       {
-  //         id: Math.max(...questions.map((q) => q.id)) + 1,
-  //         question: "",
-  //         answer: "",
-  //       },
-  //     ])
-  //   }
-  // }
-
   return (
     <div className="w-full mt-[48px] bg-[#F8F5F2] p-6 rounded-lg">
-      {questions.map((q, ) => (
+      {questions.map((q) => (
         <Card key={q.id} className="mb-6 p-6 bg-white">
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
@@ -165,22 +149,18 @@ export default function QAForm({userId}: Props) {
               <Trash2 className="h-4 w-4" />
               <span className="sr-only">Delete</span>
             </Button>
-            <Button className="bg-slate-800 text-white hover:bg-slate-700" onClick={() => handleCreate(q.id)} disabled={pendingId === q.id && isPending}>
+            <Button
+              className="bg-slate-800 text-white hover:bg-slate-700"
+              onClick={() => handleCreate(q.id)}
+              disabled={pendingId === q.id && isPending}
+            >
               Create {pendingId === q.id && isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             </Button>
           </div>
         </Card>
       ))}
 
-      {/* {questions.length < 10 && (
-        <div className="flex justify-center">
-          <Button variant="ghost" className="flex items-center gap-2" onClick={addNewQuestion}>
-            <Plus className="h-4 w-4" />
-            Add New Q&A (Maximum 10)
-          </Button>
-        </div>
-      )} */}
+      <Separator className="my-6" />
     </div>
   )
 }
-
