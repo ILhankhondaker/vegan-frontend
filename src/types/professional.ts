@@ -106,3 +106,21 @@ export interface SupportTicketResponse {
   message: string;
   tickets: SupportTicket[];
 }
+
+
+// faqs 
+export type FAQ = {
+  _id: string;
+  userID: string;
+  question: string;
+  answer: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+export type FAQResponse = {
+  success: boolean;
+  message: string;
+  data: FAQ[];
+};

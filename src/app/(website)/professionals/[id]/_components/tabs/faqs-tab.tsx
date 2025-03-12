@@ -1,67 +1,39 @@
-"use client";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { FAQResponse } from "@/types/professional";
 
-const faqs = [
-  {
-    question: "What can I expect in our first session?",
-    answer:
-      "In our first session, we'll discuss your health goals, current diet, and lifestyle. I'll perform a comprehensive nutritional assessment and create a personalized plan tailored to your needs",
-  },
-  {
-    question: "Do you provide meal plans?",
-    answer:
-      "Yes, we provide customized meal plans based on your nutritional needs and preferences.",
-  },
-  {
-    question: "What can I expect in our first session?",
-    answer:
-      "In our first session, we'll discuss your health goals, current diet, and lifestyle. I'll perform a comprehensive nutritional assessment and create a personalized plan tailored to your needs",
-  },
-  {
-    question: "Do you provide meal plans?",
-    answer:
-      "Yes, we provide customized meal plans based on your nutritional needs and preferences.",
-  },
-  {
-    question: "What can I expect in our first session?",
-    answer:
-      "In our first session, we'll discuss your health goals, current diet, and lifestyle. I'll perform a comprehensive nutritional assessment and create a personalized plan tailored to your needs",
-  },
-  {
-    question: "Do you provide meal plans?",
-    answer:
-      "Yes, we provide customized meal plans based on your nutritional needs and preferences.",
-  },
-  {
-    question: "What can I expect in our first session?",
-    answer:
-      "In our first session, we'll discuss your health goals, current diet, and lifestyle. I'll perform a comprehensive nutritional assessment and create a personalized plan tailored to your needs",
-  },
-  {
-    question: "Do you provide meal plans?",
-    answer:
-      "Yes, we provide customized meal plans based on your nutritional needs and preferences.",
-  },
-  {
-    question: "What can I expect in our first session?",
-    answer:
-      "In our first session, we'll discuss your health goals, current diet, and lifestyle. I'll perform a comprehensive nutritional assessment and create a personalized plan tailored to your needs",
-  },
-  {
-    question: "Do you provide meal plans?",
-    answer:
-      "Yes, we provide customized meal plans based on your nutritional needs and preferences.",
-  },
-];
+interface Props {
+  userId: string;
+}
 
-export default function FAQsTab() {
+const FAQSection = ({userId}: Props) => {
+ 
+
+  const { data, isError, isLoading, error } = 
+  useQuery<FAQResponse>({
+    queryKey: ["single-merchant-profile", userId],
+    queryFn: () =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/faqs/${userId}`,
+      ).then((res) => res.json()),
+     
+  });
+  
+  console.log("response data:", data);
+  console.log(data?.data);
+
+  if (isLoading) return <p className="text-center text-gray-500">Loading FAQs...</p>;
+  if (isError) return <p className="text-center text-red-500">Error: {error.message}</p>;
+
+
+  const faqs = data?.data || [];
+
+
+
+
+
   return (
     <div className="max-w-[848px] p-4">
       <h1 className="mb-6 font-lexend text-xl font-medium leading-[25px] text-[#1D3557]">
@@ -69,20 +41,24 @@ export default function FAQsTab() {
       </h1>
 
       <Accordion type="single" collapsible className="space-y-6">
-        {faqs.map((faq, index) => (
-          <AccordionItem
-            key={index}
-            value={`item-${index}`}
-            className="rounded-xl bg-white p-6 shadow-sm"
-          >
-            <AccordionTrigger className="py-0 text-left font-inter text-base font-medium leading-[24px] text-[#1F2937] hover:no-underline md:text-lg md:leading-[22px]">
-              {faq.question}
-            </AccordionTrigger>
-            <AccordionContent className="pb-0 pt-4 font-inter text-sm font-normal leading-[24px] text-[#374151] md:text-base md:leading-[28px]">
-              {faq.answer}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
+        {faqs.length > 0 ? (
+          faqs.map((faq, index) => (
+            <AccordionItem
+              key={faq._id} // Using unique _id instead of index
+              value={`item-${index}`}
+              className="rounded-xl bg-white p-6 shadow-sm"
+            >
+              <AccordionTrigger className="py-0 text-left font-inter text-base font-medium leading-[24px] text-[#1F2937] hover:no-underline md:text-lg md:leading-[22px]">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="pb-0 pt-4 font-inter text-sm font-normal leading-[24px] text-[#374151] md:text-base md:leading-[28px]">
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No FAQs available.</p>
+        )}
       </Accordion>
 
       <div className="mt-[68px]">
@@ -95,4 +71,6 @@ export default function FAQsTab() {
       </div>
     </div>
   );
-}
+};
+
+export default FAQSection;
