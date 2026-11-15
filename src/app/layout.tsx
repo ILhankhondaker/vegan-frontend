@@ -4,7 +4,7 @@ import NProgress from "@/provider/NProgress";
 import "@smastrom/react-rating/style.css";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
-import { Inter, Lexend_Deca } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -12,13 +12,6 @@ const inter = Inter({
   weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-inter",
-});
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const lexendDeca = Lexend_Deca({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-lexend",
 });
 
 export const metadata: Metadata = {
